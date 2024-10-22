@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'posts',
-    'ninja'
+    'ninja',
+    'rest_framework',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -124,3 +126,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True
+}
+{
+    "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTcyOTY5MzM2OCwiaWF0IjoxNzI5NjA2OTY4LCJqdGkiOiI4ZDhmOGYyYTczNGI0ZDFiYWM0YjNiMWE0MzMzODNmZSIsInVzZXJfaWQiOjN9.VZ2KXwLWC0a2qaVAti5mGrt9sbQln6hWd6JfLnDhLUU",
+    "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzI5NjEwNTY4LCJpYXQiOjE3Mjk2MDY5NjgsImp0aSI6IjZhYzBmOTZlZTJlNjQ4MGU4NThiOTBkNTg5NTY4MDlkIiwidXNlcl9pZCI6M30.iATkJyipqOH2mOC33-VKPZw3qnqWMfkc7KK80oupRnA"
+}

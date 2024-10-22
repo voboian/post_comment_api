@@ -1,23 +1,19 @@
 from django.db import models
-from django.contrib.auth.models import User  # Для прив'язки постів та коментарів до користувачів
+from django.contrib.auth.models import User
 
-# Модель Post для збереження постів користувачів
 class Post(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now=True)
+    auto_reply_enabled = models.BooleanField(default=False)  # Чи увімкнена авт. відповідь
 
-    def __str__(self):
-        return self.title
+    def formatted_date(self):
+        return self.created_at.strftime("%B %d, %Y at %I:%M %p")
 
-# Модель Comment для збереження коментарів до постів
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-    is_blocked = models.BooleanField(default=False)  # Чи був коментар заблокований модерацією
-
-    def __str__(self):
-        return f"Comment by {self.author.username} on {self.post.title}"
+    created_at = models.DateTimeField(auto_now=True)
+    blocked = models.BooleanField(default=False)  # Для блокування коментарів з образами
