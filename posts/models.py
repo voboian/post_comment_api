@@ -9,7 +9,7 @@ class Post(models.Model):
     auto_reply_enabled = models.BooleanField(default=False)  # Чи увімкнена авт. відповідь
 
     def formatted_date(self):
-        return self.created_at.strftime("%B %d, %Y at %I:%M %p")
+        return self.created_at.strftime("%m/%d/%Y, %H:%M:%S")
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)

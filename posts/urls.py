@@ -1,12 +1,13 @@
 from ninja import Router
 from .views import (
     list_posts, create_post, retrieve_post, update_post, delete_post,
-    list_comments, create_comment, update_comment, delete_comment, register_user
+    list_comments, create_comment, update_comment, delete_comment, register_user, comments_daily_breakdown
 )
 
 post_router = Router()
 comment_router = Router()
 user_router = Router()
+analytics_router = Router()
 
 # Маршрути для постів
 post_router.add_api_operation("/", methods=["GET"], view_func=list_posts)
@@ -22,3 +23,7 @@ comment_router.add_api_operation("/{comment_id}/", methods=["PUT"], view_func=up
 comment_router.add_api_operation("/{comment_id}/", methods=["DELETE"], view_func=delete_comment)
 
 user_router.add_api_operation("/", methods=["POST"], view_func=register_user)
+
+analytics_router.add_api_operation(
+    "/comments-daily-breakdown", methods=["GET"], view_func=comments_daily_breakdown
+)

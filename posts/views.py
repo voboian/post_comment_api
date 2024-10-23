@@ -3,6 +3,9 @@ from .models import Post, Comment
 from .schemas import PostOutSchema, PostCreateSchema, CommentCreateSchema, CommentOutSchema, RegisterUserSchema
 from .models import User
 from django.contrib.auth.hashers import make_password
+from datetime import datetime, timedelta
+from django.db.models import Count, Q
+from ninja.errors import HttpError
 
 
 
@@ -106,3 +109,48 @@ def register_user(request, data: RegisterUserSchema):
         password=make_password(data.password)  # Хешуємо пароль перед збереженням
     )
     return {"message": "User registered successfully", "user_id": user.id}
+
+def comments_daily_breakdown(request, date_from: str, date_to: str):
+    try:
+        # Конвертуємо рядкові параметри в дати
+        date_from = datetime.strptime(date_from, "%Y-%m-%d")
+        date_to = datetime.strptime(date_to, "%Y-%m-%d")
+    except ValueError:
+        raise HttpError(400, "Invalid date format. Use 'YYYY-MM-DD'.")
+
+    if date_from > date_to:
+        raise HttpError(400, "'date_from' must be earlier than 'date_to'.")
+
+    # Фільтруємо коментарі за датою
+    comments = Comment.objects.filter(
+        created_at__date__range=(date_from, date_to)
+    )
+
+    # Агрегуємо коментарі по днях
+    daily_stats = comments.values("created_at__date").annotate(
+        total_comments=Count('id'),
+        blocked_comments=Count('id', filter=Q(blocked=True))
+    )
+
+    # Форматуємо результати
+    result = []
+    current_date = date_from
+    while current_date <= date_to:
+        # Перевіряємо, чи є дані за поточний день
+        day_stats = next((d for d in daily_stats if d["created_at__date"] == current_date.date()), None)
+        if day_stats:
+            result.append({
+                "date": current_date.strftime("%Y-%m-%d"),
+                "total_comments": day_stats["total_comments"],
+                "blocked_comments": day_stats["blocked_comments"],
+            })
+        else:
+            # Якщо немає даних, додаємо нулі
+            result.append({
+                "date": current_date.strftime("%Y-%m-%d"),
+                "total_comments": 0,
+                "blocked_comments": 0,
+            })
+        current_date += timedelta(days=1)
+
+    return result
