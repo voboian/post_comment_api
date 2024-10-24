@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('posts', '0002_alter_comment_created_at_alter_post_created_at'),
+        ("posts", "0002_alter_comment_created_at_alter_post_created_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='post',
-            name='auto_reply_delay',
+            model_name="post",
+            name="auto_reply_delay",
             field=models.PositiveIntegerField(default=5),
         ),
     ]

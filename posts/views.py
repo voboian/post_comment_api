@@ -1,7 +1,12 @@
 import time
 from threading import Thread
 from .models import Post, Comment
-from .schemas import PostOutSchema, PostCreateSchema, CommentCreateSchema, CommentOutSchema
+from .schemas import (
+    PostOutSchema,
+    PostCreateSchema,
+    CommentCreateSchema,
+    CommentOutSchema,
+)
 from .models import User
 from django.shortcuts import get_object_or_404
 
@@ -18,9 +23,12 @@ def list_posts(request):
             id=post.id,
             title=post.title,
             content=post.content,
-            author={"id": post.author.id, "username": post.author.username}, # Витягуємо інформацію про автора
+            author={
+                "id": post.author.id,
+                "username": post.author.username,
+            },  # Витягуємо інформацію про автора
             created_at=post.created_at,
-            auto_reply_enabled=post.auto_reply_enabled
+            auto_reply_enabled=post.auto_reply_enabled,
         )
         for post in posts
     ]
@@ -46,26 +54,34 @@ def create_post(request, data: PostCreateSchema):
     # Повертаємо успішну відповідь
     return {"message": "Post created successfully", "post": post.id}
 
+
 def retrieve_post(request, post_id: int) -> PostOutSchema:
     post = get_object_or_404(Post, id=post_id)
     return PostOutSchema(
         id=post.id,
         title=post.title,
         content=post.content,
-        author={"id": post.author.id, "username": post.author.username},  # Витягуємо username автора
+        author={
+            "id": post.author.id,
+            "username": post.author.username,
+        },  # Витягуємо username автора
         created_at=post.created_at,
-        auto_reply_enabled=post.auto_reply_enabled
+        auto_reply_enabled=post.auto_reply_enabled,
     )
+
 
 def update_post(request, post_id: int, data: PostCreateSchema):
     post = get_object_or_404(Post, id=post_id)
     for attr, value in data.model_dump().items():
         if attr == "author":  # Якщо атрибут - автор
-            post.author = get_object_or_404(User, id=value)  # Отримуємо об'єкт User за ID
+            post.author = get_object_or_404(
+                User, id=value
+            )  # Отримуємо об'єкт User за ID
         else:
             setattr(post, attr, value)  # Оновлюємо інші атрибути
     post.save()
     return {"message": "Post updated successfully"}
+
 
 def delete_post(request, post_id: int):
     post = get_object_or_404(Post, id=post_id)
@@ -73,30 +89,31 @@ def delete_post(request, post_id: int):
     return {"message": "Post deleted successfully"}
 
 
-def create_comment(request, data: CommentCreateSchema, comment_content: str):
+def create_comment(request, data: CommentCreateSchema):
     post = get_object_or_404(Post, id=data.post_id)
     author = get_object_or_404(User, id=data.author_id)
 
     # Перевіряємо на токсичність
-    if check_for_toxicity(comment_content):
+    if check_for_toxicity(data.content):
         # Створюємо заблокований коментар
         Comment.objects.create(
             post=post,
-            content=comment_content,
+            content=data.content,
             author=author,
-            blocked=True  # Блокуємо коментар
+            blocked=True,  # Блокуємо коментар
         )
         return {"message": "Comment is blocked due to inappropriate content."}
 
     # Створюємо коментар
     Comment.objects.create(
         post_id=data.post_id,
-        content=comment_content,
-        author=request.user,
+        content=data.content,
+        author=author,
     )
 
     # Перевіряємо, чи увімкнена автоматична відповідь для поста
     if post.auto_reply_enabled:
+
         def thread_target(post_content, comment_content):
             time.sleep(post.auto_reply_delay)
             auto_reply = generate_reply(post_content, comment_content)
@@ -105,13 +122,16 @@ def create_comment(request, data: CommentCreateSchema, comment_content: str):
                 post=post,
                 content=auto_reply,
                 author=post.author,  # або вкажіть автора відповіді, якщо потрібно
-                blocked=False  # Автоматичні відповіді не блокуються
+                blocked=False,  # Автоматичні відповіді не блокуються
             )
 
         # Використовуємо затримку з поста
-        Thread(target=thread_target, args=(post.content, comment_content)).start()
+        Thread(target=thread_target, args=(post.content, data.content)).start()
 
-    return {"message": "Comment created successfully and auto-reply generated if enabled."}
+    return {
+        "message": "Comment created successfully and auto-reply generated if enabled."
+    }
+
 
 def list_comments(request, post_id: int):
     post = get_object_or_404(Post, id=post_id)
@@ -122,10 +142,11 @@ def list_comments(request, post_id: int):
             id=comment.id,
             content=comment.content,
             author=comment.author.username,
-            created_at=comment.created_at
+            created_at=comment.created_at,
         )
         for comment in comments
     ]
+
 
 def update_comment(request, comment_id: int, data: CommentCreateSchema):
     comment = get_object_or_404(Comment, id=comment_id)

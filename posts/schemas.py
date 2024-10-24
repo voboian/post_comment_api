@@ -9,6 +9,7 @@ class UserOutSchema(Schema):
     id: int
     username: str
 
+
 class PostOutSchema(Schema):
     id: int
     title: str
@@ -16,6 +17,7 @@ class PostOutSchema(Schema):
     author: UserOutSchema
     created_at: datetime
     auto_reply_enabled: bool
+
 
 class PostCreateSchema(Schema):
     title: str
@@ -29,19 +31,22 @@ class PostCreateSchema(Schema):
         try:
             User.objects.get(id=author_id)
         except ObjectDoesNotExist:
-            raise ValueError(f'User with id {author_id} does not exist.')
+            raise ValueError(f"User with id {author_id} does not exist.")
         return author_id
+
 
 class CommentCreateSchema(Schema):
     post_id: int
     content: str
     author_id: int
 
+
 class CommentOutSchema(Schema):
     id: int
     content: str
     author: str
     created_at: datetime
+
 
 class RegisterUserSchema(Schema):
     username: str

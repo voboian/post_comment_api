@@ -1,7 +1,10 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta
 
 from django.test import TestCase
+
 from ninja.testing import TestClient
+from rest_framework_simplejwt.tokens import RefreshToken
+
 from .urls import post_router, analytics_router
 from .models import User, Post, Comment
 
@@ -11,10 +14,13 @@ class PostCreateTest(TestCase):
         self.client = TestClient(post_router)
 
         self.user = User.objects.create_user(
-            username="testuser",
-            email="testuser@example.com",
-            password="testpassword"
+            username="testuser", email="testuser@example.com", password="testpassword"
         )
+
+        refresh = RefreshToken.for_user(self.user)
+        self.access_token = str(refresh.access_token)
+
+        self.auth_headers = {"Authorization": f"Bearer {self.access_token}"}
 
     def test_create_post(self):
         post_data = {
@@ -23,10 +29,11 @@ class PostCreateTest(TestCase):
             "author": self.user.id,
             "auto_reply_enabled": True,
             "auto_reply_delay": 10,
-            "created_at": datetime.now(),
         }
 
-        response = self.client.post("/create/", json=post_data)
+        response = self.client.post(
+            "/create/", json=post_data, headers=self.auth_headers
+        )
 
         self.assertEqual(response.status_code, 200)
 
@@ -41,7 +48,7 @@ class CommentsAnalyticsTest(TestCase):
             author=self.user,
             auto_reply_enabled=False,
             auto_reply_delay=5,
-            created_at=datetime.now() - timedelta(days=1)
+            created_at=datetime.now() - timedelta(days=1),
         )
 
         Comment.objects.create(
@@ -49,7 +56,7 @@ class CommentsAnalyticsTest(TestCase):
             content="Test Comment 1",
             author=self.user,
             created_at=datetime.now() - timedelta(days=1),
-            blocked=False
+            blocked=False,
         )
 
         Comment.objects.create(
@@ -57,7 +64,7 @@ class CommentsAnalyticsTest(TestCase):
             content="Test Comment 2",
             author=self.user,
             created_at=datetime.now(),
-            blocked=True
+            blocked=True,
         )
 
     def test_comments_daily_breakdown(self):

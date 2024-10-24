@@ -7,18 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('posts', '0003_post_auto_reply_delay'),
+        ("posts", "0003_post_auto_reply_delay"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='comment',
-            name='created_at',
+            model_name="comment",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='post',
-            name='created_at',
+            model_name="post",
+            name="created_at",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
     ]

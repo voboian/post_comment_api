@@ -2,8 +2,15 @@ from ninja import Router
 
 from .services import register_user, comments_daily_breakdown
 from .views import (
-    list_posts, create_post, retrieve_post, update_post, delete_post,
-    list_comments, create_comment, update_comment, delete_comment
+    list_posts,
+    create_post,
+    retrieve_post,
+    update_post,
+    delete_post,
+    list_comments,
+    create_comment,
+    update_comment,
+    delete_comment,
 )
 
 post_router = Router()
@@ -19,10 +26,16 @@ post_router.add_api_operation("/{post_id}/", methods=["PUT"], view_func=update_p
 post_router.add_api_operation("/{post_id}/", methods=["DELETE"], view_func=delete_post)
 
 # Маршрути для коментарів
-post_router.add_api_operation("/{post_id}/comments", methods=["GET"], view_func=list_comments)
+post_router.add_api_operation(
+    "/{post_id}/comments", methods=["GET"], view_func=list_comments
+)
 comment_router.add_api_operation("/create", methods=["POST"], view_func=create_comment)
-comment_router.add_api_operation("/{comment_id}/", methods=["PUT"], view_func=update_comment)
-comment_router.add_api_operation("/{comment_id}/", methods=["DELETE"], view_func=delete_comment)
+comment_router.add_api_operation(
+    "/{comment_id}/", methods=["PUT"], view_func=update_comment
+)
+comment_router.add_api_operation(
+    "/{comment_id}/", methods=["DELETE"], view_func=delete_comment
+)
 
 user_router.add_api_operation("/", methods=["POST"], view_func=register_user)
 
