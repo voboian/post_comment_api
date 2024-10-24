@@ -21,6 +21,8 @@ class PostCreateSchema(Schema):
     title: str
     content: str
     author: int
+    auto_reply_enabled: bool
+    auto_reply_delay: int
 
     @classmethod
     def validate_author(cls, author_id: int):

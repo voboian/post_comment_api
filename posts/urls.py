@@ -1,7 +1,9 @@
 from ninja import Router
+
+from .services import register_user, comments_daily_breakdown
 from .views import (
     list_posts, create_post, retrieve_post, update_post, delete_post,
-    list_comments, create_comment, update_comment, delete_comment, register_user, comments_daily_breakdown
+    list_comments, create_comment, update_comment, delete_comment
 )
 
 post_router = Router()
