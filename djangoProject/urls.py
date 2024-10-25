@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from api import api  # Імпортуємо API
+from api import api
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [

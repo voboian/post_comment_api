@@ -10,7 +10,7 @@ class Post(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     auto_reply_enabled = models.BooleanField(
         default=False
-    )  # Чи увімкнена авт. відповідь
+    )
     auto_reply_delay = models.PositiveIntegerField(default=5)
 
     def formatted_date(self):
@@ -22,4 +22,4 @@ class Comment(models.Model):
     content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(default=timezone.now)
-    blocked = models.BooleanField(default=False)  # Для блокування коментарів з образами
+    blocked = models.BooleanField(default=False)
